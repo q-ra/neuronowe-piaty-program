@@ -12,25 +12,28 @@ const server = http.createServer((req, res) => {
 
     req.on('end', () => {
       let jsonWithData = JSON.parse(buffer)
-      let examples = fs.readFileSync('examples.json', 'utf-8')
+      let examples = JSON.parse(fs.readFileSync('examples.json', 'utf-8'))
       if (jsonWithData['addOrDelete'] === 'deleteElem') {
         examples.splice(jsonWithData['jsonData'], 1)
       }
-      if (jsonWithData[addOrDelete] === 'addElem') {
-        examplses.push(jsonWithData['jsonData'])
+      if (jsonWithData['addOrDelete'] === 'addElem') {
+        examples.push(jsonWithData['jsonData'])
       }
       let stringified = JSON.stringify(examples)
       fs.writeFileSync('examples.json', stringified)
       res.statusCode = 200;
+      res.setHeader('Access-Control-Allow-Origin', '*')
       res.setHeader('Content-Type', 'application/json');
       res.end(stringified)
     })
   } else if (req.method === 'GET' && req.url.match(/examples/)) {
     let examples = fs.readFileSync('examples.json', 'utf-8')
     res.statusCode = 200;
+    res.setHeader('Access-Control-Allow-Origin', '*')
     res.setHeader('Content-Type', 'application/json');
     res.end(examples)
   } else {
+    res.setHeader('Access-Control-Allow-Origin', '*')
     res.end('ok')
   }
 
