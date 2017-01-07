@@ -1,0 +1,14 @@
+.n-clear-td{
+  background-color: green;
+  width: 6px;
+  height: 6px;
+}
+
+.n-tables{
+  display: flex;
+  margin-bottom: 30px;
+}
+
+.n-clicked{
+  background-color: red;
+}
