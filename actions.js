@@ -93,17 +93,21 @@ $('.js-delete-example').on('click', function() {
   })
 })
 
+$('.js-clear-button').on('click', function(){
+  window.location = window.location
+})
+
 
 function calculateWeights() {
-  for (let i = 0; i < 1600; i += 1) {
-    for (let j = 0; j < 1600; j += 1) {
+  for (let x = 0; x < 1600; x += 1) {
+    for (let y = 0; y < 1600; y += 1) {
       let weight = 0
-      if (i != j) {
+      if (x != y) {
         for (let n = 0; n < examples.length; n += 1) {
-          weight += examples[n][i] * examples[n][j]
+          weight += examples[n][x] * examples[n][y]
         }
       }
-      weights[i][j] = weight
+      weights[x][y] = weight
     }
   }
 }
@@ -119,66 +123,54 @@ function getCurrentImage(){
   return currentImage
 }
 
-
-function nextIteration(i, image) {
-  let sum = 0
-  let changed = 0
-  let out = null
-
-  for (let j = 0; j < 1600; j += 1) {
-    sum += weights[i][j] * image[j];
-  }
-  if (sum != 0) {
-    if (sum < 0){
-      out = -1;
-    }
-    if (sum > 0){
-      out = 1;
-    }
-    console.log(sum)
-    if (out != image[i]) {
-      changed = 1;
-      image[i] = out;
-    }
-  }
-  return changed
-}
-
-function asynCor(img)
-{
-	let iteration = 0
-	let iterationofLastChange = 0
-
-	do {
-		iteration += 1
-		if (nextIteration(Math.floor(Math.random() * 1600), img))
-			iterationofLastChange = iteration;
-	} while (iteration - iterationofLastChange < 40 * 1600);
-}
-
-
-$('.js-learn-button').on('click', function() {
-  calculateWeights()
-  let currentImage = getCurrentImage()
-  // console.log(currentImage.reduce(function(a, b) { return a + b; }, 0))
-  asynCor(currentImage)
-  // console.log(currentImage.reduce(function(a, b) { return a + b; }, 0))
-
+function paintExample(img){
   let _table = $('.js-outcome-table td')
   for (let tdIndx = 0; tdIndx < 1600; tdIndx += 1) {
-    if (currentImage[tdIndx] == 1) {
+    if (img[tdIndx] == 1) {
       $(_table[tdIndx]).addClass('n-clicked').removeClass('n-clear-td')
     } else {
       $(_table[tdIndx]).removeClass('n-clicked').addClass('n-clear-td')
     }
   }
+}
 
-  // console.log(weights)
-  // for (let exIndx = 0; exIndx < examples.length; exIndx += 1) {
-  //   parsedExamples[exIndx] = []
-  //   for (let x = 0; x < 40; x += 1) {
-  //     parsedExamples[exIndx].push(examples[exIndx].slice(x * 40, x * 40 + 40))
-  //   }
-  // }
-  // console.log(parsedExamples)
+
+function hasChanged(x, image) {
+  let sum = 0
+  let fals = 0
+  let out = null
+  let changed = false
+
+  for (let y = 0; y < 1600; y += 1) {
+    sum += weights[x][y] * image[y];
+  }
+
+  if (sum != 0) {
+
+    out = sum < 0 ? -1 : 1
+
+    if (out != image[x]) {
+      changed = true
+      image[x] = out
+    }
+  }
+  return changed
+}
+
+function glauber(img){
+	let iteration = 0
+	let lastChange = 0
+	do {
+		iteration += 1
+		if (hasChanged(Math.floor(Math.random() * 1600), img))
+			lastChange = iteration
+	} while (iteration - lastChange < 40 * 1600) // czekanie aż się ustabilizuje
+}
+
+
+$('.js-learn-button').on('click', function() {
+  let currentImage = getCurrentImage()
+  calculateWeights()
+  glauber(currentImage)
+  paintExample(currentImage)
 })
